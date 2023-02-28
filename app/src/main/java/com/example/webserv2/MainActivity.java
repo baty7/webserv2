@@ -1,18 +1,24 @@
 package com.example.webserv2;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.webserv2.Modelo.CambioDivisas;
 import com.example.webserv2.Modelo.Rates;
+import com.squareup.picasso.Picasso;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -37,11 +43,43 @@ public class MainActivity extends AppCompatActivity {
 
         Button btnGetData = (Button) findViewById(R.id.btnGetData);
         EditText etAPIID = (EditText) findViewById(R.id.etAPIID);
-        //TextView tvBase = (TextView) findViewById(R.id.tvBase);
-        //TextView tvConvert = (TextView) findViewById(R.id.tvConvert);
+        // Referencia a la ImageView en el archivo XML de diseño
+        ImageView imgvLogin = findViewById(R.id.imgvLogin);
+        TextView tvInstructions = findViewById(R.id.tv_instructions);
+
+        // Carga la imagen de divisas en la ImageView usando Picasso
+        String imageUrl = "https://quierocredito.mx/wp-content/uploads/2020/07/colorful-abstract-background-made-different-metal-coins-american-ukrainian-bills-euro-banknotes-currency-money-finances-successful-investment-concept_127089-3599-840x560.jpg";
+        Picasso.get()
+                .load(imageUrl)
+                .fit()
+                .into(imgvLogin);
+
+
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, new ArrayList<>());
         ListView listViewDivisas = findViewById(R.id.listViewDivisas);
         listViewDivisas.setAdapter(adapter);
+
+
+        listViewDivisas.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                tvInstructions.setVisibility(View.VISIBLE);
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle("¿Estás seguro?");
+                builder.setMessage("¿Deseas borrar este elemento?");
+                builder.setPositiveButton("Sí", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        adapter.remove(adapter.getItem(position));
+                        adapter.notifyDataSetChanged();
+                        tvInstructions.setVisibility(View.GONE);
+                    }
+                });
+                builder.setNegativeButton("No", null);
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+        });
 
 
         btnGetData.setOnClickListener(new View.OnClickListener() {
